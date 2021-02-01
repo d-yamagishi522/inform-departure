@@ -14,13 +14,14 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json())
 
 app.post('/callback', function(req, res) {
+  console.log('koko')
     async.waterfall([
       function(callback) {
         if (!validate_signature(req.headers['x-line-signature'], req.body)) {
           return
         }
         callback()
-      },
+      }
     ],
     function(displayName) {
       //ヘッダーを定義
@@ -59,10 +60,10 @@ app.post('/callback', function(req, res) {
 })
 
 app.listen(app.get('port'), function() {
-    console.log('Node app is running')
+  console.log('Node app is running')
 })
 
 // 署名検証
 function validate_signature(signature, body) {
-    return signature == crypto.createHmac('sha256', process.env.LINE_CHANNEL_SECRET).update(new Buffer(JSON.stringify(body), 'utf8')).digest('base64')
+  return signature == crypto.createHmac('sha256', process.env.LINE_CHANNEL_SECRET).update(new Buffer(JSON.stringify(body), 'utf8')).digest('base64')
 }
