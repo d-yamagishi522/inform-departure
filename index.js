@@ -4,8 +4,8 @@ const line = require("@line/bot-sdk")
 
 // パラメータ設定
 const line_config = {
-    channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || 'nc7q0GhLfnasFOHgsPnt4JasGkCPLd75OPu6dwUbsWezsP4hippd5ykkV+9u7n+msJcwN9eRQ4DbQnf/H15VaBl9E6J6o7HMx7++B4720o9DGGXBymJA1kGSTCMiS5XvejYbqy2nGbHEQj2qjohEgQdB04t89/1O/w1cDnyilFU=',
-    channelSecret: process.env.LINE_CHANNEL_SECRET || 'ecdf030e1c35d6cca5ac7098e916e93d'
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
+  channelSecret: process.env.LINE_CHANNEL_SECRET
 }
 
 // APIコールのためのクライアントインスタンスを作成
@@ -17,7 +17,7 @@ console.log(bot)
 server.listen(process.env.PORT || 3000)
 
 // ルーター設定
-server.post('/bot/webhook', (req, res, next) => {
+server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
   // すべてのイベント処理のプロミスを格納する配列。
   const events_processed = []
 
