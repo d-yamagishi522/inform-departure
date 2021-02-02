@@ -11,27 +11,22 @@ const line_config = {
 // APIコールのためのクライアントインスタンスを作成
 const bot = new line.Client(line_config)
 
-console.log(bot)
-
 // Webサーバー設定
 server.listen(process.env.PORT || 3000)
 
 // ルーター設定
 server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
-  // すべてのイベント処理のプロミスを格納する配列。
-  const events_processed = []
+  const list = []
 
-  // イベントオブジェクトを順次処理。
   req.body.events.forEach((event) => {
-    // replyMessage()で返信し、そのプロミスをevents_processedに追加。
-    events_processed.push(bot.replyMessage(event.replyToken, {
+    list.push(bot.replyMessage(event.replyToken, {
         type: "text",
         text: "test"
     }))
   })
 
-  // すべてのイベント処理が終了したら何個のイベントが処理されたか出力。
-  Promise.all(events_processed).then(
+  // 全ての処理が終了したら成功ステータス返す
+  Promise.all(list).then(
     () => {
       res.sendStatus(200)
     }
