@@ -8,7 +8,7 @@ const async = require('async')
 app.set('port', (process.env.PORT || 8000))
 // JSONの送信を許可
 app.use(bodyParser.urlencoded({
-    extended: true
+  extended: true
 }))
 // JSONのパースを楽に（受信時）
 app.use(bodyParser.json())
