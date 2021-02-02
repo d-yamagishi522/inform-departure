@@ -21,7 +21,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
   req.body.events.forEach((event) => {
     list.push(bot.replyMessage(event.replyToken, {
         type: "text",
-        text: "test"
+        text: event.message.text
     }))
   })
 
