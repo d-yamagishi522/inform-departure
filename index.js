@@ -1,7 +1,6 @@
 // モジュールのインポート
 const server = require("express")()
 const line = require("@line/bot-sdk")
-const request = require('request')
 
 // パラメータ設定
 const line_config = {
@@ -9,38 +8,36 @@ const line_config = {
     channelSecret: process.env.LINE_CHANNEL_SECRET
 }
 
+// APIコールのためのクライアントインスタンスを作成
+const bot = new line.Client(line_config)
+
 // Webサーバー設定
 server.listen(process.env.PORT || 3000)
 
 // ルーター設定
 server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
-  const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer {' + process.env.LINE_CHANNEL_ACCESS_TOKEN + '}',
-  }
+  // 先行してLINE側にステータスコード200でレスポンスする。
+  res.sendStatus(200)
 
-  // 送信データ作成
-  const data = {
-    'replyToken': req.body['events'][0]['replyToken'],
-    'messages': [{
-      'type': 'text',
-      'text': 'test'
-    }]
-  }
+  // すべてのイベント処理のプロミスを格納する配列。
+  const events_processed = []
 
-  //オプションを定義
-  const options = {
-    url: 'https://api.line.me/v2/bot/message/reply',
-    headers: headers,
-    json: true,
-    body: data
-  }
-
-  request.post(options, function(error, response, body) {
-    if (!error && response.statusCode == 200) {
-      res.sendStatus(200)
-    } else {
-      console.log('error: ' + JSON.stringify(response))
+  // イベントオブジェクトを順次処理。
+  req.body.events.forEach((event) => {
+    // この処理の対象をイベントタイプがメッセージで、かつ、テキストタイプだった場合に限定。
+    if (event.type == "message" && event.message.type == "text"){
+      // replyMessage()で返信し、そのプロミスをevents_processedに追加。
+      events_processed.push(bot.replyMessage(event.replyToken, {
+          type: "text",
+          text: "test"
+      }))
     }
   })
+
+  // すべてのイベント処理が終了したら何個のイベントが処理されたか出力。
+  Promise.all(events_processed).then(
+    (response) => {
+      console.log(`${response.length} event(s) processed.`)
+    }
+  )
 })
