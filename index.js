@@ -15,17 +15,18 @@ const bot = new line.Client(line_config)
 server.listen(process.env.PORT || 3000)
 
 // ルーター設定
-server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
+server.post('/bot/webhook', line.middleware(line_config), (req, res) => {
   const list = []
 
   req.body.events.forEach((event) => {
+    // メッセージのリクエストを送信
     list.push(bot.replyMessage(event.replyToken, {
         type: "text",
         text: event.message.text
     }))
   })
 
-  // 全ての処理が終了したら成功ステータス返す
+  // 処理が終了したら成功ステータス返す
   Promise.all(list).then(
     () => {
       res.sendStatus(200)
